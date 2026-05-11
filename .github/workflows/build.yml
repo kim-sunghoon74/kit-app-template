@@ -20,12 +20,6 @@ jobs:
         $env:PYTHONUTF8 = "1"
         chcp 65001
 
-    - name: Create USD Composer app
-      shell: powershell
-      run: |
-        $env:PYTHONUTF8 = "1"
-        "mycomposer`nMy Composer`n`n`n`n" | .\repo.bat template new
-
     - name: Build
       shell: powershell
       run: |
