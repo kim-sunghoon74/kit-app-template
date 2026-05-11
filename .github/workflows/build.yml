@@ -20,23 +20,35 @@ jobs:
         $env:PYTHONUTF8 = "1"
         chcp 65001
 
-    - name: Create USD Composer app
-      shell: cmd
+    - name: Create replay file
+      shell: powershell
       run: |
-        set PYTHONUTF8=1
-        (echo mycomposer & echo My Composer & echo & echo & echo N) | repo.bat template new
+        # template new 입력값을 미리 파일로 저장
+        $replay = @"
+        format_version = 1
+        [[inputs]]
+        type = "application"
+        template = "usd_composer"
+        name = "mycomposer"
+        display_name = "My Composer"
+        setup_extension_name = "my_company.my_usd_composer_setup"
+        setup_extension_display_name = "My USD Composer Setup"
+        add_layers = false
+        "@
+        New-Item -ItemType Directory -Force -Path ".repo_replay"
+        $replay | Out-File -FilePath ".repo_replay\replay.toml" -Encoding utf8
+
+    - name: Template new via replay
+      shell: powershell
+      run: |
+        $env:PYTHONUTF8 = "1"
+        .\repo.bat template new --replay .repo_replay\replay.toml
 
     - name: Build
       shell: powershell
       run: |
         $env:PYTHONUTF8 = "1"
         .\repo.bat build
-
-    - name: Find output files
-      shell: powershell
-      run: |
-        Write-Host "=== _build 폴더 구조 ==="
-        Get-ChildItem -Recurse _build -Filter "*.zip" | Select-Object FullName
 
     - name: Package
       shell: powershell
