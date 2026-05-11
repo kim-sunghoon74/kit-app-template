@@ -20,11 +20,23 @@ jobs:
         $env:PYTHONUTF8 = "1"
         chcp 65001
 
+    - name: Create USD Composer app
+      shell: cmd
+      run: |
+        set PYTHONUTF8=1
+        (echo mycomposer & echo My Composer & echo & echo & echo N) | repo.bat template new
+
     - name: Build
       shell: powershell
       run: |
         $env:PYTHONUTF8 = "1"
         .\repo.bat build
+
+    - name: Find output files
+      shell: powershell
+      run: |
+        Write-Host "=== _build 폴더 구조 ==="
+        Get-ChildItem -Recurse _build -Filter "*.zip" | Select-Object FullName
 
     - name: Package
       shell: powershell
@@ -32,24 +44,14 @@ jobs:
         $env:PYTHONUTF8 = "1"
         .\repo.bat package --name mycomposer
 
-    - name: Find output files        # ← 추가
+    - name: Find zip
       shell: powershell
       run: |
-        Write-Host "=== _build 폴더 전체 구조 ==="
-        Get-ChildItem -Recurse _build | Select-Object FullName
-
-    - name: Create zip manually
-      shell: powershell
-      run: |
-        $src = "_build/windows-x86_64/release"
-        $dst = "_build/packages/mycomposer.zip"
-
-        New-Item -ItemType Directory -Force -Path (Split-Path $dst) | Out-Null
-        Compress-Archive -Path "$src\*" -DestinationPath $dst
+        Get-ChildItem -Recurse -Filter "*.zip" | Select-Object FullName
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: mycomposer
-        path: _build/packages/mycomposer.zip
+        path: "**/*.zip"
         retention-days: 5
