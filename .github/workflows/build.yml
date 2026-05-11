@@ -1,0 +1,46 @@
+name: Build USD Composer
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 90
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+
+    - name: Set UTF-8 encoding
+      shell: powershell
+      run: |
+        $env:PYTHONUTF8 = "1"
+        chcp 65001
+
+    - name: Create USD Composer app
+      shell: powershell
+      run: |
+        $env:PYTHONUTF8 = "1"
+        "mycomposer`nMy Composer`n`n`n`n" | .\repo.bat template new
+
+    - name: Build
+      shell: powershell
+      run: |
+        $env:PYTHONUTF8 = "1"
+        .\repo.bat build
+
+    - name: Package
+      shell: powershell
+      run: |
+        $env:PYTHONUTF8 = "1"
+        .\repo.bat package --name mycomposer
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: mycomposer
+        path: _build/packages/mycomposer.zip
+        retention-days: 5
