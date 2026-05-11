@@ -32,6 +32,12 @@ jobs:
         $env:PYTHONUTF8 = "1"
         .\repo.bat package --name mycomposer
 
+    - name: Find output files        # ← 추가
+      shell: powershell
+      run: |
+        Write-Host "=== _build 폴더 전체 구조 ==="
+        Get-ChildItem -Recurse _build | Select-Object FullName
+
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
